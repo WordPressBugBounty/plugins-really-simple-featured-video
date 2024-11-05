@@ -2,8 +2,8 @@
 Contributors: jetixwp, lushkant
 Requires at least: 6.0
 Requires PHP: 8.0
-Tested up to: 6.6.1
-Stable tag: 0.16.0
+Tested up to: 6.7
+Stable tag: 0.17.0
 Tags: video, featured video, woocommerce, product video, video embed
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,10 +90,11 @@ If you wish to grab the PRO version with a lifetime deal please do [checkout Pro
 2. Featured video posts on Twenty Twenty-Three theme.
 3. WooCommerce Product page with self-hosted Featured Video.
 4. Settings page view.
-5. Video playback controls view at Really Simple Featured Video settings.
-6. WooCommerce settings page view.
-7. Single Page view with Featured video on Twenty nineteen theme.
-8. Showing Featured video by post id shortcode via Block editor.
+5. Global settings page view.
+6. Video playback controls view at Really Simple Featured Video settings.
+7. WooCommerce settings page view.
+8. Single Page view with Featured video on Twenty nineteen theme.
+9. Showing Featured video by post id shortcode via Block editor.
 
 
 == Frequently Asked Questions ==
@@ -109,6 +110,11 @@ For the free version of this plugin, support is limited to support forums here.
 And if you're a Pro user, you can send a support ticket via the [account](https://jetixwp.com/account) page from our site for any query you may have, and we will get back to you at the earliest.
 
 == Changelog ==
+
+= 0.17.0 =
+- New: Add support for Lay theme
+- Improvement: Update Freemius SDK to v2.9.0
+- Improvement: Other minor changes
 
 = 0.16.0 =
 - New: Add support for Hestia, Neve, Go, Kadence, Astra, GeneratePress and Storefront themes
