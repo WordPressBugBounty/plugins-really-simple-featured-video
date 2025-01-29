@@ -8,6 +8,7 @@
 namespace RSFV;
 
 use function RSFV\Settings\get_post_types;
+use RSFV\Options;
 
 /**
  * Class FrontEnd
@@ -64,6 +65,18 @@ class FrontEnd {
 	 */
 	public function get_post_video( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
 		global $post;
+
+		$options                  = Options::get_instance();
+		$blog_archives_visibility = $options->get( 'blog_archives_visibility' );
+		$blog_single_visibility   = $options->get( 'blog_single_visibility' );
+
+		if ( ( ( is_home() || is_archive() ) && ( $options->has( 'blog_archives_visibility' ) && ! $blog_archives_visibility ) ) ) {
+			return $html;
+		}
+
+		if ( ( ( is_single() ) && ( $options->has( 'blog_single_visibility' ) && ! $blog_single_visibility ) ) ) {
+			return $html;
+		}
 
 		if ( 'object' !== gettype( $post ) ) {
 			return $html;
