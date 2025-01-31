@@ -3,7 +3,7 @@ Contributors: jetixwp, lushkant
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.7.1
-Stable tag: 0.22.0
+Stable tag: 0.23.0
 Tags: video, featured video, woocommerce, product video, video embed
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,9 +14,9 @@ Really Simple Featured Video enables featured video support for WordPress posts,
 
 [🚀 [PRO] Grab the premium version at a Lifetime Deal](https://jetixwp.com/plugins/really-simple-featured-video/?utm_source=wporg&utm_medium=referral&utm_campaign=readme)
 
-Really Simple Featured Video plugin provides a really straightforward way of adding featured video support to your custom post types. Adding your own videos to the site is a breeze and you get an easy to use settings panel with the options you really need.
+Really Simple Featured Video plugin provides a really straightforward way of adding featured video support to your Posts, Pages & WooCommerce Products. Adding your own videos to the site is a breeze and you get an easy to use settings panel with the options you really need.
 
-https://www.youtube.com/watch?v=xHrj2lcNS5Q
+https://www.youtube.com/watch?v=KWi-xuEgy-o
 
 With Really Simple Featured Video you get a metabox at posts, pages, CPTs & Woo products edit screen at the very bottom and a very similar interface as you're used to with featured image.
 
@@ -37,6 +37,8 @@ You get a really simple settings page which has all the controls you need for ma
 
 
 == 👉️ WooCommerce Support ==
+
+https://www.youtube.com/watch?v=FLw3ntOXaLY
 
 This plugin came out of a real need with many plugins available out there yet none provides a good integration with WooCommerce.
 Really Simple Featured Video plugin provides a straightforward implementation for WooCommerce Product Featured Video, with which your set featured video loads directly into product thumbnails along with any other product images.
@@ -110,6 +112,12 @@ For the free version of this plugin, support is limited to support forums here.
 And if you're a Pro user, you can send a support ticket via the [account](https://jetixwp.com/account) page from our site for any query you may have, and we will get back to you at the earliest.
 
 == Changelog ==
+
+= 0.23.0 =
+- New: Flatsome theme compatibility engine
+- Improvement: Child themes causing Parent themes to get ignored via Theme Compatibility engine selector
+- Improvement: Improved Twenty-Twenty Five theme compatibility
+- Improvement: Other minor changes
 
 = 0.22.0 =
 - New: Setting to toggle videos at Blog single posts
