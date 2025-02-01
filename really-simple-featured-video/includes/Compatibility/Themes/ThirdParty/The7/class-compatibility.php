@@ -1,11 +1,11 @@
 <?php
 /**
- * Flatsome theme compatibility handler.
+ * The7 theme compatibility handler.
  *
  * @package RSFV
  */
 
-namespace RSFV\Compatibility\Themes\ThirdParty\Flatsome;
+namespace RSFV\Compatibility\Themes\ThirdParty\The7;
 
 use RSFV\Compatibility\Themes\Base_Compatibility;
 use RSFV\Options;
@@ -31,7 +31,7 @@ class Compatibility extends Base_Compatibility {
 	public function __construct() {
 		parent::__construct();
 
-		$this->id = 'flatsome';
+		$this->id = 'dt-the7';
 
 		$this->override_woo_templates();
 
@@ -45,13 +45,13 @@ class Compatibility extends Base_Compatibility {
 	 */
 	public function enqueue_scripts() {
 		// Register dummy styles.
-		wp_register_style( 'rsfv-flatsome', false ); // phpcs:ignore.
+		wp_register_style( 'rsfv-dt-the7', $this->get_current_dir_url() . 'ThirdParty/The7/styles.css', array(), filemtime( $this->get_current_dir() . 'ThirdParty/The7/styles.css' ) );
 
 		// Enqueue styles.
-		wp_enqueue_style( 'rsfv-flatsome' );
+		wp_enqueue_style( 'rsfv-dt-the7' );
 
 		// Add generated CSS.
-		wp_add_inline_style( 'rsfv-flatsome', Plugin::get_instance()->frontend_provider->generate_dynamic_css() );
+		wp_add_inline_style( 'rsfv-dt-the7', Plugin::get_instance()->frontend_provider->generate_dynamic_css() );
 	}
 
 	/**
@@ -72,33 +72,18 @@ class Compatibility extends Base_Compatibility {
 		if ( ( ! $options->has( 'product_archives_visibility' ) && ! $product_archives_visibility ) || $product_archives_visibility ) {
 			remove_action( 'woocommerce_before_shop_loop_item_title', array( $base_woo_compat_instance, 'get_woo_archives_video' ), 10 );
 
-			add_action( 'flatsome_woocommerce_shop_loop_images', array( $base_woo_compat_instance, 'get_woo_archives_video' ), 10 );
+			add_action( 'dt_woocommerce_shop_loop_images', array( $base_woo_compat_instance, 'get_woo_archives_video' ), 10 );
 
-			remove_action( 'flatsome_woocommerce_shop_loop_images', 'woocommerce_template_loop_product_thumbnail' );
-			remove_action( 'flatsome_woocommerce_shop_loop_images', 'flatsome_woocommerce_get_alt_product_thumbnail', 11 );
+			remove_action( 'dt_woocommerce_shop_loop_images', 'dt_woocommerce_get_alt_product_thumbnail', 11 );
+
+			add_action( 'rsfv_woo_archives_product_thumbnails', 'woocommerce_template_loop_product_thumbnail' );
 
 			add_action(
-				'rsfv_woo_archives_product_thumbnails',
+				'init', // Since it doesn't work outside a parent hook.
 				function () {
-					flatsome_woocommerce_get_alt_product_thumbnail();
+					remove_action( 'dt_woocommerce_shop_loop_images', 'woocommerce_template_loop_product_thumbnail', 10 );
 				}
 			);
 		}
-
-		add_filter( 'woocommerce_locate_template', array( $this, 'override_woocommerce_template_part' ), 10, 3 );
-	}
-
-	/**
-	 * Overrides Woo templates with available ones.
-	 *
-	 * @param string $template Template path absolute url.
-	 * @param string $template_name Template name.
-	 * @param string $template_path Template path.
-	 * @return string
-	 */
-	public function override_woocommerce_template_part( $template, $template_name, $template_path ) {
-		$template_directory = untrailingslashit( plugin_dir_path( __FILE__ ) ) . '/templates/';
-		$path               = $template_directory . $template_name;
-		return file_exists( $path ) ? $path : $template;
 	}
 }
