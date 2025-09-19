@@ -12,6 +12,12 @@ class RSFVHoverAutoplay {
             enableOnDesktop: true,
             respectUserPreferences: true,
             debugMode: false,
+						videoTypes: {
+								html5: "1",
+								youtube: "1",
+								vimeo: "1",
+								dailymotion: "1",
+						},
             ...options
         };
         
@@ -23,9 +29,30 @@ class RSFVHoverAutoplay {
         this.touchStartTime = 0;
         this.touchMoved = false;
         
+        // MULTISITE FIX: Force use root domain for YouTube origin in subdirectories
+        this.useRootOrigin = this.shouldUseRootOrigin();
+        
         this.init();
     }
-    
+
+    // MULTISITE FIX: Detect if we should use root domain instead of subdirectory
+    shouldUseRootOrigin() {
+        const path = window.location.pathname;
+        const isSubdirectory = path.split('/').filter(p => p).length > 0 && 
+                              !path.startsWith('/wp-admin') && 
+                              !path.startsWith('/wp-content');
+        
+        // Check if this looks like a WordPress multisite subdirectory
+        const hasWpIndicators = document.body.classList.contains('wp-admin') ||
+                               document.body.classList.contains('wordpress') ||
+                               document.querySelector('meta[name="generator"]')?.content?.includes('WordPress') ||
+                               window.wp !== undefined;
+        
+        const useRoot = isSubdirectory && hasWpIndicators;
+        this.log('Should use root origin for YouTube:', useRoot, 'Path:', path);
+        return useRoot;
+    }
+
     init() {
         this.checkReducedMotion();
         this.checkDeviceType();
@@ -132,6 +159,10 @@ class RSFVHoverAutoplay {
             this.setupVideoContainer(container, index);
         });
     }
+
+		checkVideoTypeAllowed(type) {
+			return this.options.videoTypes && this.options.videoTypes[type] === "1";
+		}
     
     setupVideoContainer(container, index) {
         if (container.dataset.rsfvHoverInit) return;
@@ -147,7 +178,14 @@ class RSFVHoverAutoplay {
         
         const videoType = this.getVideoType(video);
 
+				if (!this.checkVideoTypeAllowed(videoType)) {
+					this.log(`Video type ${videoType} not allowed for hover autoplay, skipping container ${index}`);
+					return;
+				}
+
         this.log(`Setting up ${videoType} video ${index} for ${this.isMobile ? 'mobile' : this.isTablet ? 'tablet' : 'desktop'}`);
+        this.log(`Video element:`, video);
+        this.log(`Video src:`, video.src || video.getAttribute('src'));
         
         if (videoType === 'html5') {
             this.setupHTML5Video(container, video, index);
@@ -253,6 +291,7 @@ class RSFVHoverAutoplay {
     setupIframeVideo(container, iframe, videoType, index) {
         if (!this.shouldEnableHover()) return;
         
+        this.log(`setupIframeVideo called for ${videoType} video ${index}`);
         this.ensureIframeAPI(iframe, videoType);
         
         let hoverTimeout;
@@ -442,13 +481,29 @@ class RSFVHoverAutoplay {
         const currentSrc = iframe.src;
         let newSrc = currentSrc;
         
+        this.log(`ensureIframeAPI called for ${videoType}, current src:`, currentSrc);
+        
         switch (videoType) {
             case 'youtube':
+                this.log('Processing YouTube iframe...');
                 if (!currentSrc.includes('enablejsapi=1')) {
                     newSrc += (currentSrc.includes('?') ? '&' : '?') + 'enablejsapi=1';
+                    this.log('Added enablejsapi=1');
                 }
-                if (!currentSrc.includes('origin=')) {
-                    newSrc += '&origin=' + encodeURIComponent(window.location.origin);
+                
+                // MULTISITE FIX: Replace existing origin parameter with root domain
+                const correctOrigin = this.useRootOrigin ? 
+                    `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}` :
+                    window.location.origin;
+                
+                if (currentSrc.includes('origin=')) {
+                    // Replace existing origin parameter
+                    newSrc = newSrc.replace(/([?&])origin=[^&]*(&|$)/, `$1origin=${encodeURIComponent(correctOrigin)}$2`);
+                    this.log('Replaced existing origin parameter with:', correctOrigin);
+                } else {
+                    // Add new origin parameter
+                    newSrc += '&origin=' + encodeURIComponent(correctOrigin);
+                    this.log('Added new origin parameter:', correctOrigin);
                 }
                 break;
                 
@@ -612,6 +667,7 @@ document.addEventListener('DOMContentLoaded', function() {
         enableOnDesktop: rsfvOptions.enableOnDesktop === "1", // default true
         respectUserPreferences: rsfvOptions.respectUserPreferences === "1", // default true
         debugMode: rsfvOptions.debugMode || false,
+        videoTypes: rsfvOptions.videoTypes,
     });
 });
 
