@@ -137,7 +137,7 @@ class Metabox {
 
 		// Get PictureInPicture option.
 		$is_pip = ( is_array( $video_controls ) && isset( $video_controls['pip'] ) ) && $video_controls['pip'];
-		$is_pip = $is_pip ? 'autopictureinpicture' : '';
+		$is_pip = $is_pip ? 'autopictureinpicture' : 'disablepictureinpicture';
 
 		// Get video controls option.
 		$has_controls = ( is_array( $video_controls ) && isset( $video_controls['controls'] ) ) && $video_controls['controls'];
@@ -213,10 +213,12 @@ class Metabox {
 		);
 
 		$select_source = sprintf(
-			'<div><p>%1$s</p>%2$s%3$s</div>',
+			'<div><p>%1$s</p>%2$s%3$s<p><a href="%4$s">%5$s</a></p></div>',
 			__( 'Please select a video source', 'rsfv' ),
 			$self_input,
-			$embed_input
+			$embed_input,
+			get_admin_url() . 'admin.php?page=rsfv-tools#manage',
+			__( '(NEW) Set & Manage Videos from One Place', 'rsfv' ),
 		);
 
 		$styles = '<style>.rsfv-self, .rsfv-embed { padding: 10px 0; } .remove-video { margin-top: 6px; } .rsfv-poster { margin: 8px 0 !important; } .rsfv-set-poster { margin: 4px 0 !important; }</style>';
@@ -285,6 +287,7 @@ class Metabox {
 				'autopictureinpicture' => array(),
 				'autoplay'             => array(),
 				'controls'             => array(),
+				'controlslist'         => array(),
 			),
 			'input' => array(
 				'type'        => array(),

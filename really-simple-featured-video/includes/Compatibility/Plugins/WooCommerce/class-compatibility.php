@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 use RSFV\Options;
 use RSFV\Plugin;
+use RSFV\Shortcode;
 use RSFV\Compatibility\Plugins\Base_Compatibility;
 use RSFV\Featuresets\Hover_Autoplay\Init as Hover_Autoplay;
 use RSFV\Featuresets\Hover_Autoplay\Utils as Hover_Utils;
@@ -104,6 +105,13 @@ class Compatibility extends Base_Compatibility {
 		}
 
 		add_action( 'rsfv_woo_archives_product_thumbnails', 'woocommerce_template_loop_product_thumbnail', 10 );
+
+		$product_video_external_url = $options->get( 'product_video_external_url' );
+
+		if ( $options->has( 'product_video_external_url' ) && $product_video_external_url ) {
+			add_filter( 'rsfv_get_video_source', array( $this, 'set_external_product_url' ), 10, 2 );
+			add_filter( 'rsfv_get_woo_video_source', array( $this, 'set_external_product_url' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -298,6 +306,83 @@ class Compatibility extends Base_Compatibility {
 	}
 
 	/**
+	 * Sets the video source for external products if supported video url in external product url.
+	 *
+	 * @param string $video_source Video source type.
+	 * @param int    $product_id Product ID.
+	 *
+	 * @return string
+	 */
+	public function set_external_product_url( $video_source, $product_id ) {
+		// Only modify for product post type.
+		if ( 'product' !== get_post_type( $product_id ) ) {
+			return $video_source;
+		}
+
+		$product      = wc_get_product( $product_id );
+		$product_type = $product ? $product->get_type() : '';
+
+		$video_url = '';
+		if ( 'self' === $video_source ) {
+			$video_url = get_post_meta( $product_id, RSFV_META_KEY, true );
+		} elseif ( 'embed' === $video_source ) {
+			$video_url = get_post_meta( $product_id, RSFV_EMBED_META_KEY, true );
+		}
+
+		if ( '' === $video_url && 'external' === $product_type ) {
+			$options              = Options::get_instance();
+			$external_url_enabled = $options->get( 'product_video_external_url', false );
+			$external_url         = get_post_meta( $product_id, '_product_url', true );
+
+			if ( $external_url_enabled ) {
+				$frontend   = Plugin::get_instance()->frontend_provider;
+				$embed_data = $frontend->parse_embed_url( $external_url );
+
+				if ( is_array( $embed_data ) && isset( $embed_data['host'] ) && in_array( $embed_data['host'], array( 'youtube', 'vimeo', 'dailymotion' ), true ) ) {
+					$video_source = 'embed';
+
+					add_filter(
+						'rsfv_get_embed_woo_video_url',
+						function () use ( $external_url ) {
+							return esc_url( $external_url );
+						}
+					);
+
+					add_filter(
+						'rsfv_get_embed_video_url',
+						function () use ( $external_url ) {
+							return esc_url( $external_url );
+						}
+					);
+				}
+			}
+		}
+
+		return $video_source;
+	}
+
+	/**
+	 * Get external product URL if available.
+	 *
+	 * @param int $product_id Product ID.
+	 *
+	 * @return string
+	 */
+	public function get_external_product_url( $product_id ) {
+		$product      = wc_get_product( $product_id );
+		$product_type = $product ? $product->get_type() : '';
+
+		$video_url = '';
+
+		if ( 'external' === $product_type ) {
+			$external_url = get_post_meta( $product_id, '_product_url', true );
+			$video_url    = esc_url( $external_url );
+		}
+
+		return $video_url;
+	}
+
+	/**
 	 * Product Video Markup.
 	 *
 	 * @param int    $id Product ID.
@@ -318,23 +403,26 @@ class Compatibility extends Base_Compatibility {
 		$video_source = get_post_meta( $id, RSFV_SOURCE_META_KEY, true );
 		$video_source = $video_source ? $video_source : 'self';
 
+		// Catalyst for external products support.
+		$video_source = apply_filters( 'rsfv_get_woo_video_source', $video_source, $id );
+
 		$video_controls = 'self' !== $video_source ? get_video_controls( 'embed' ) : get_video_controls();
 
 		// Prepare video data for hover functionality.
 		$video_data = array(
-			'product_id' => $id,
-			'post_type' => $post_type,
-			'source' => $video_source,
-			'controls' => $video_controls,
-			'is_archives' => $is_archives,
+			'product_id'    => $id,
+			'post_type'     => $post_type,
+			'source'        => $video_source,
+			'controls'      => $video_controls,
+			'is_archives'   => $is_archives,
 			'wrapper_class' => $wrapper_class,
 		);
 
 		$video_html = '';
 
 		if ( ! empty( $post_types ) && in_array( $post_type, $post_types, true ) ) {
-			$img_url = RSFV_PLUGIN_URL . 'assets/images/video_frame.png';
-			$thumbnail = apply_filters( 'rsfv_default_woo_gallery_video_thumb', $img_url );
+			$img_url           = RSFV_PLUGIN_URL . 'assets/images/video_frame.png';
+			$thumbnail         = apply_filters( 'rsfv_default_woo_gallery_video_thumb', $img_url );
 			$gallery_thumbnail = wc_get_image_size( 'gallery_thumbnail' );
 
 			// Return early if thumbnail is only required.
@@ -357,6 +445,7 @@ class Compatibility extends Base_Compatibility {
 				$video_html = apply_filters( 'rsfv_woo_video_html', $video_html, $video_data, $id );
 			}
 		}
+
 		return $video_html;
 	}
 
@@ -376,10 +465,10 @@ class Compatibility extends Base_Compatibility {
 			$hover_settings = Hover_Autoplay::get_settings();
 
 			if ( ! empty( $hover_settings['enable_hover_autoplay'] ) ) {
-				$attributes['data-rsfv-video'] = 'true';
+				$attributes['data-rsfv-video']         = 'true';
 				$attributes['data-rsfv-hover-enabled'] = 'true';
-				$attributes['data-rsfv-source'] = $video_data['source'];
-				$attributes['data-rsfv-context'] = 'woocommerce';
+				$attributes['data-rsfv-source']        = $video_data['source'];
+				$attributes['data-rsfv-context']       = 'woocommerce';
 
 				if ( $video_data['is_archives'] ) {
 					$attributes['data-rsfv-archives'] = 'true';
@@ -415,7 +504,7 @@ class Compatibility extends Base_Compatibility {
 	 * @return string
 	 */
 	private static function get_self_hosted_woo_video( $id, $wrapper_class, $wrapper_attributes, $thumbnail, $video_controls, $video_data ) {
-		$media_id = get_post_meta( $id, RSFV_META_KEY, true );
+		$media_id  = get_post_meta( $id, RSFV_META_KEY, true );
 		$video_url = esc_url( wp_get_attachment_url( $media_id ) );
 
 		if ( ! $video_url ) {
@@ -423,7 +512,7 @@ class Compatibility extends Base_Compatibility {
 		}
 
 		// Get video attributes with hover enhancements.
-		$video_attrs = self::get_enhanced_video_attributes( $video_controls, $video_data );
+		$video_attrs = self::get_enhanced_video_attributes( $video_controls );
 
 		// Get poster image.
 		$poster_id  = get_post_meta( $id, RSFV_POSTER_META_KEY, true );
@@ -484,13 +573,13 @@ class Compatibility extends Base_Compatibility {
 	 * @return string
 	 */
 	private static function get_embed_woo_video( $id, $wrapper_class, $wrapper_attributes, $thumbnail, $video_controls, $video_data ) {
-		$input_url = esc_url( get_post_meta( $id, RSFV_EMBED_META_KEY, true ) );
+		$input_url = apply_filters( 'rsfv_get_embed_woo_video_url', esc_url( get_post_meta( $id, RSFV_EMBED_META_KEY, true ) ), $id );
 
 		if ( ! $input_url ) {
 			return '';
 		}
 
-		$frontend = Plugin::get_instance()->frontend_provider;
+		$frontend   = Plugin::get_instance()->frontend_provider;
 		$embed_data = $frontend->parse_embed_url( $input_url );
 		$video_type = is_array( $embed_data ) ? $embed_data['host'] : 'unknown';
 
@@ -507,19 +596,19 @@ class Compatibility extends Base_Compatibility {
 
 		// Build iframe with mobile enhancements.
 		$iframe_attrs = array(
-			'class' => 'rsfv-video',
-			'width' => '100%',
-			'height' => '540',
-			'src' => $embed_url . ( ! empty( $url_params ) ? '?' . $url_params : '' ),
-			'frameborder' => '0',
+			'class'           => 'rsfv-video',
+			'width'           => '100%',
+			'height'          => '540',
+			'src'             => $embed_url . ( ! empty( $url_params ) ? '?' . $url_params : '' ),
+			'frameborder'     => '0',
 			'allowfullscreen' => true,
-			'allow' => 'autoplay; fullscreen; picture-in-picture',
-			'loading' => 'lazy',
+			'allow'           => 'autoplay; fullscreen; picture-in-picture',
+			'loading'         => 'lazy',
 		);
 
 		// Add mobile-specific attributes.
 		if ( wp_is_mobile() ) {
-			$iframe_attrs['playsinline'] = true;
+			$iframe_attrs['playsinline']        = true;
 			$iframe_attrs['webkit-playsinline'] = true;
 		}
 
@@ -527,7 +616,7 @@ class Compatibility extends Base_Compatibility {
 		if ( class_exists( 'RSFV\\Featuresets\\Hover_Autoplay\\Init' ) ) {
 			$hover_settings = Hover_Autoplay::get_settings();
 			if ( ! empty( $hover_settings['enable_hover_autoplay'] ) ) {
-				$iframe_attrs['role'] = 'presentation';
+				$iframe_attrs['role']       = 'presentation';
 				$iframe_attrs['aria-label'] = __( 'Product video - tap to play', 'rsfv' );
 			}
 		}
@@ -573,35 +662,10 @@ class Compatibility extends Base_Compatibility {
 	 * Get enhanced video attributes with hover support
 	 *
 	 * @param array $video_controls Video controls.
-	 * @param array $video_data Video data.
 	 * @return array
 	 */
-	private static function get_enhanced_video_attributes( $video_controls, $video_data ) {
-		$attributes = array(
-			'style' => 'max-width:100%;display:block;',
-		);
-
-		// Standard video controls.
-		if ( ! empty( $video_controls['controls'] ) ) {
-			$attributes['controls'] = true;
-		}
-
-		if ( ! empty( $video_controls['autoplay'] ) ) {
-			$attributes['autoplay'] = true;
-			$attributes['playsinline'] = true;
-		}
-
-		if ( ! empty( $video_controls['loop'] ) ) {
-			$attributes['loop'] = true;
-		}
-
-		if ( ! empty( $video_controls['mute'] ) ) {
-			$attributes['muted'] = true;
-		}
-
-		if ( ! empty( $video_controls['pip'] ) ) {
-			$attributes['autopictureinpicture'] = true;
-		}
+	private static function get_enhanced_video_attributes( $video_controls ) {
+		$attributes = Shortcode::get_html5_video_attributes( $video_controls );
 
 		// Hover enhancements.
 		if ( class_exists( '\\RSFV\\Featuresets\\Hover_Autoplay\\Utils' ) ) {
@@ -620,10 +684,10 @@ class Compatibility extends Base_Compatibility {
 	 */
 	private static function get_woo_embed_url_parameters( $video_controls, $video_data ) {
 		// Standard parameters.
-		$is_autoplay = ! empty( $video_controls['autoplay'] ) ? 'autoplay=1&' : 'autoplay=0&';
-		$is_loop = ! empty( $video_controls['loop'] ) ? 'loop=1&' : '';
-		$is_muted = ! empty( $video_controls['mute'] ) ? 'mute=1&muted=1&' : '';
-		$is_pip = ! empty( $video_controls['pip'] ) ? 'picture-in-picture=1&' : '';
+		$is_autoplay  = ! empty( $video_controls['autoplay'] ) ? 'autoplay=1&' : 'autoplay=0&';
+		$is_loop      = ! empty( $video_controls['loop'] ) ? 'loop=1&' : '';
+		$is_muted     = ! empty( $video_controls['mute'] ) ? 'mute=1&muted=1&' : '';
+		$is_pip       = ! empty( $video_controls['pip'] ) ? 'picture-in-picture=1&' : '';
 		$has_controls = ! empty( $video_controls['controls'] ) ? 'controls=1&' : 'controls=0&';
 
 		$base_params = $has_controls . $is_autoplay . $is_loop . $is_muted . $is_pip;
@@ -666,7 +730,7 @@ class Compatibility extends Base_Compatibility {
 		}
 
 		$product_id = $product->get_id();
-		$post_type = get_post_type( $product_id ) ?? '';
+		$post_type  = get_post_type( $product_id ) ?? '';
 		$post_types = get_post_types();
 
 		// Enhanced video markup with hover support.

@@ -131,13 +131,6 @@ class FrontEnd {
 						$embed_data = self::get_instance()->parse_embed_url( $embed_url );
 						$video_type = is_array( $embed_data ) ? $embed_data['host'] : 'unknown';
 
-						$video_data = array(
-							'post_id' => $post_id,
-							'embed_url' => $embed_url,
-							'type' => $video_type,
-							'source' => 'embed',
-						);
-
 						$shortcode_output = do_shortcode( '[rsfv]' );
 						return '<div class="rsfv-shortcode-wrapper" data-rsfv-video="true" data-rsfv-source="embed" data-rsfv-type="' . esc_attr( $video_type ) . '" style="clear:both">' . $shortcode_output . '</div>';
 					}
@@ -156,7 +149,6 @@ class FrontEnd {
 	 * @return bool
 	 */
 	public static function has_featured_video( $post_id ) {
-
 		// Exit early if no post id is provided.
 		if ( empty( $post_id ) ) {
 			return false;
@@ -178,16 +170,18 @@ class FrontEnd {
 				$video_source = get_post_meta( $post->ID, RSFV_SOURCE_META_KEY, true );
 				$video_source = $video_source ? $video_source : 'self';
 
+				$video_source = apply_filters( 'rsfv_get_video_source', $video_source, $post->ID );
+
 				if ( 'self' === $video_source ) {
 					// Get the meta value of video attachment.
-					$video_id = get_post_meta( $post->ID, RSFV_META_KEY, true );
+					$video_id = esc_url( get_post_meta( $post->ID, RSFV_META_KEY, true ) );
 
 					if ( $video_id ) {
 						return true;
 					}
 				} else {
 					// Get the meta value of video embed url.
-					$embed_url = get_post_meta( $post_id, RSFV_EMBED_META_KEY, true );
+					$embed_url = apply_filters( 'rsfv_get_embed_video_url', esc_url( get_post_meta( $post_id, RSFV_EMBED_META_KEY, true ) ), $post_id );
 
 					if ( $embed_url ) {
 						return true;
@@ -195,6 +189,7 @@ class FrontEnd {
 				}
 			}
 		}
+
 		return false;
 	}
 
@@ -217,7 +212,7 @@ class FrontEnd {
 			case 'www.youtube.com':
 			case 'youtube.com':
 			case 'youtu.be':
-				$pattern = '/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|vi|e(?:mbed)?)\/|\S*?[?&]v=|\S*?[?&]vi=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/';
+				$pattern = '/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|vi|e(?:mbed)?|shorts)\/|\S*?[?&]v=|\S*?[?&]vi=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/';
 
 				$result = preg_match( $pattern, $url, $matches );
 
@@ -313,93 +308,95 @@ class FrontEnd {
 			'rsfv_allowed_html',
 			array(
 				'video'  => array(
-					'id'                   => array(),
-					'class'                => array(),
-					'src'                  => array(),
-					'style'                => array(),
-					'loop'                 => array(),
-					'muted'                => array(),
-					'controls'             => array(),
-					'autopictureinpicture' => array(),
-					'autoplay'             => array(),
-					'playsinline'          => array(),
-					'preload'              => array(),
-					'poster'               => array(),
-					'tabindex'             => array(),
-					'role'                 => array(),
-					'aria-label'           => array(),
-					'aria-hidden'          => array(),
-					'data-rsfv-video'      => array(),
-					'data-rsfv-type'       => array(),
-					'data-rsfv-source'     => array(),
+					'id'                      => array(),
+					'class'                   => array(),
+					'src'                     => array(),
+					'style'                   => array(),
+					'loop'                    => array(),
+					'muted'                   => array(),
+					'controls'                => array(),
+					'controlslist'            => array(),
+					'autopictureinpicture'    => array(),
+					'disablepictureinpicture' => array(),
+					'autoplay'                => array(),
+					'playsinline'             => array(),
+					'preload'                 => array(),
+					'poster'                  => array(),
+					'tabindex'                => array(),
+					'role'                    => array(),
+					'aria-label'              => array(),
+					'aria-hidden'             => array(),
+					'data-rsfv-video'         => array(),
+					'data-rsfv-type'          => array(),
+					'data-rsfv-source'        => array(),
 					'data-rsfv-hover-enabled' => array(),
-					'data-state'           => array(),
+					'data-state'              => array(),
 				),
 				'iframe' => array(
-					'id'              => array(),
-					'class'           => array(),
-					'src'             => array(),
-					'width'           => array(),
-					'style'           => array(),
-					'height'          => array(),
-					'frameborder'     => array(),
-					'allowfullscreen' => array(),
-					'allow'           => array(),
-					'loading'         => array(),
-					'tabindex'        => array(),
-					'role'            => array(),
-					'aria-label'      => array(),
-					'aria-hidden'     => array(),
-					'data-rsfv-video' => array(),
-					'data-rsfv-type'  => array(),
-					'data-rsfv-source' => array(),
+					'id'                      => array(),
+					'class'                   => array(),
+					'src'                     => array(),
+					'width'                   => array(),
+					'style'                   => array(),
+					'height'                  => array(),
+					'frameborder'             => array(),
+					'allowfullscreen'         => array(),
+					'allow'                   => array(),
+					'loading'                 => array(),
+					'tabindex'                => array(),
+					'role'                    => array(),
+					'aria-label'              => array(),
+					'aria-hidden'             => array(),
+					'data-rsfv-video'         => array(),
+					'data-rsfv-type'          => array(),
+					'data-rsfv-source'        => array(),
 					'data-rsfv-hover-enabled' => array(),
-					'data-rsfv-embed-type' => array(),
+					'data-rsfv-embed-type'    => array(),
 				),
 				'div'    => array(
-					'class'             => array(),
-					'id'                => array(),
-					'data-thumb'        => array(),
-					'style'             => array(),
-					'data-slide-number' => array(),
-					'data-rsfv-video'   => array(),
-					'data-rsfv-type'    => array(),
-					'data-rsfv-source'  => array(),
-					'data-rsfv-hover-enabled' => array(),
-					'data-rsfv-context' => array(),
-					'data-rsfv-archives' => array(),
-					'data-rsfv-lazy'    => array(),
-					'data-rsfv-threshold' => array(),
-					'data-aspect-ratio' => array(),
-					'data-state'        => array(),
-					'role'              => array(),
-					'aria-hidden'       => array(),
-					'aria-label'        => array(),
-					'tabindex'          => array(),
+					'class'                    => array(),
+					'id'                       => array(),
+					'data-thumb'               => array(),
+					'style'                    => array(),
+					'data-slide-number'        => array(),
+					'data-rsfv-video'          => array(),
+					'data-rsfv-type'           => array(),
+					'data-rsfv-source'         => array(),
+					'data-rsfv-hover-enabled'  => array(),
+					'data-rsfv-context'        => array(),
+					'data-rsfv-archives'       => array(),
+					'data-rsfv-lazy'           => array(),
+					'data-rsfv-threshold'      => array(),
+					'data-aspect-ratio'        => array(),
+					'data-state'               => array(),
+					'role'                     => array(),
+					'aria-hidden'              => array(),
+					'aria-label'               => array(),
+					'tabindex'                 => array(),
 					// WooCommerce specific.
 					'data-rsfv-woo-product-id' => array(),
-					'data-rsfv-embed-type' => array(),
+					'data-rsfv-embed-type'     => array(),
 				),
 				'img'    => array(
-					'src'       => array(),
-					'alt'       => array(),
-					'class'     => array(),
-					'draggable' => array(),
-					'width'     => array(),
-					'height'    => array(),
-					'loading'   => array(),
-					'style'     => array(),
-					'role'      => array(),
+					'src'         => array(),
+					'alt'         => array(),
+					'class'       => array(),
+					'draggable'   => array(),
+					'width'       => array(),
+					'height'      => array(),
+					'loading'     => array(),
+					'style'       => array(),
+					'role'        => array(),
 					'aria-hidden' => array(),
-					'tabindex'  => array(),
+					'tabindex'    => array(),
 				),
 				'a'      => array(
-					'href'  => array(),
-					'class' => array(),
-					'style' => array(),
-					'role'  => array(),
-					'aria-label' => array(),
-					'tabindex' => array(),
+					'href'              => array(),
+					'class'             => array(),
+					'style'             => array(),
+					'role'              => array(),
+					'aria-label'        => array(),
+					'tabindex'          => array(),
 					'data-rsfv-product' => array(),
 				),
 				'p'      => array(
@@ -407,14 +404,14 @@ class FrontEnd {
 					'style' => array(),
 				),
 				'span'   => array(
-					'class' => array(),
-					'style' => array(),
-					'role'  => array(),
+					'class'       => array(),
+					'style'       => array(),
+					'role'        => array(),
 					'aria-hidden' => array(),
 				),
 				'br'     => array(),
 				'i'      => array(
-					'class' => array(),
+					'class'       => array(),
 					'aria-hidden' => array(),
 				),
 				'strong' => array(

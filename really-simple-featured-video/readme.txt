@@ -2,8 +2,8 @@
 Contributors: jetixwp, lushkant
 Requires at least: 6.0
 Requires PHP: 8.0
-Tested up to: 6.8.2
-Stable tag: 0.51.0
+Tested up to: 6.9
+Stable tag: 0.72.0
 Tags: video, featured video, woocommerce, product video, video embed
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -12,7 +12,7 @@ Really Simple Featured Video enables featured video support for WordPress posts,
 
 == Description ==
 
-[🚀 [PRO] Grab the premium version at a Lifetime Deal](https://jetixwp.com/plugins/really-simple-featured-video/?utm_source=wporg&utm_medium=referral&utm_campaign=readme)
+[🚀 **Take a better look at Really Simple Featured Video**](https://jetixwp.com/plugins/really-simple-featured-video/?utm_source=wporg&utm_medium=referral&utm_campaign=readme)
 
 Really Simple Featured Video plugin provides a really straightforward way of adding featured video support to your Posts, Pages & WooCommerce Products. Adding your own videos to the site is a breeze and you get an easy to use settings panel with the options you really need.
 
@@ -26,8 +26,8 @@ You get a really simple settings page which has all the controls you need for ma
 == 👉️ Features ==
 
 * **Embed support from Youtube, Dailymotion and Vimeo** - You can now embed videos from Youtube, Dailymotion and Vimeo directly at each post/page/product or any custom type that supports featured images.
-* **Self host videos** - Upload and feature videos on posts/pages and WooCommerce products directly from your site.
 * **Autoplay on Hover** - Enable autoplay on hover on all videos added via the plugin on the site, self hosted and embeds.
+* **Self host videos** - Upload and feature videos on posts/pages and WooCommerce products directly from your site.
 * **WooCommerce Single and Shop Archives Support** - A straightforward implementation for WooCommerce Product Featured Video.
 * **Astra Pro WooCommerce Module Support** - Support for vertical and horizontal product galleries.
 * **Salient Theme WPBakery Builder Support** - Support for Post Loop Builder element with Salient theme.
@@ -36,6 +36,7 @@ You get a really simple settings page which has all the controls you need for ma
 * **Support for Core themes** - We support all the newer core themes such as TwentyTwenty Four to Classic themes.
 * **Video Controls such as Autoplay, Mute and more** - Manage everything for the featured videos, by setting them accordingly, options for these are available at settings page.
 * **Shortcodes** - Shortcodes to embed featured video at any post, page or product you want.
+* **Manage Featured Videos** - Manage featured videos from one single place for all your post types and skip the repetitive steps of going to the edit screen to edit each post/page/product individually.
 
 
 == 👉️ Video Autoplay on Hover Support ==
@@ -97,12 +98,13 @@ If you wish to grab the PRO version with a lifetime deal please do [checkout Pro
 1. Single post/page featured video on Twenty Twenty-Three theme.
 2. Featured video posts on Twenty Twenty-Three theme.
 3. WooCommerce Product page with self-hosted Featured Video.
-4. Settings page view.
-5. Global settings page view.
-6. Video playback controls view at Really Simple Featured Video settings.
-7. WooCommerce settings page view.
-8. Single Page view with Featured video on Twenty nineteen theme.
-9. Showing Featured video by post id shortcode via Block editor.
+4. Featured videos management panel for all post types.
+5. Settings page view.
+6. Global settings page view.
+7. Video playback controls view at Really Simple Featured Video settings.
+8. WooCommerce settings page view.
+9. Single Page view with Featured video on Twenty nineteen theme.
+10. Showing Featured video by post id shortcode via Block editor.
 
 
 == Frequently Asked Questions ==
@@ -118,6 +120,81 @@ For the free version of this plugin, support is limited to support forums here.
 And if you're a Pro user, you can send a support ticket via the [account](https://jetixwp.com/account) page from our site for any query you may have, and we will get back to you at the earliest.
 
 == Changelog ==
+
+= 0.72.0 =
+* Fix: Video Status now correctly reflects selected source type
+* Improvement: Post Type and Per Page filters now persist across sessions
+* Improvement: Add Featured Video Management panel links throughout the Plugin
+* Improvement: Other minor changes
+
+= 0.70.0 =
+* New: Added Tools page with Manage Featured Videos feature
+* New: Video preview, poster, and thumbnail management from one place
+* New: Search functionality with instant search for posts
+* New: Deep linking support for Tools page tabs via URL hash
+* New: Extensibility system with filters and actions for developers
+* Improvement: Hide admin notices on Tools page for cleaner UI
+* Improvement: Update translation files
+* Improvement: Other minor changes
+
+= 0.58.0 =
+* Fix: Flatsome theme support for when no Woo gallery images
+* Improvement: Update translation files
+* Improvement: Other minor changes
+
+= 0.57.5 =
+* New: Adds Flatsome Theme's Product Vertical Layout support
+* Improvement: Update translation files
+* Improvement: Other minor changes
+
+= 0.57.0 =
+* New: Adds Youtube Shorts Video support
+* Improvement: Update translation files
+* Improvement: Other minor changes
+
+= 0.56.2 =
+* New: Added New settings PROMO page
+* Improvement: Update settings components and styles
+* Improvement: Update translation files
+* Improvement: Other minor changes
+
+= 0.56.0 =
+* New: Re-written Rollback feature
+* Fix: Early translation calls throwing warnings
+* Improvement: Hide submit button at version control tab
+* Improvement: Removed old plugin settings menu for good
+* Improvement: Hide all notices and other things at plugin settings page
+* Improvement: Remove dormant/unused code
+* Improvement: Other minor changes
+
+= 0.55.0 =
+* New: Added Download control toggle for Self-hosted videos
+* Fix: Self-hosted videos Picture-in-Picture control toggle not working as expected
+* Improvement: Theme compatibility engine status auto-refresh at settings
+* Improvement: Use one self-hosted video controls getter for the whole plugin
+* Improvement: Rename option labels for better discovery at settings
+* Improvement: Autoplay on hover out of beta
+* Improvement: Updated promo form at settings sidebar
+* Improvement: Removed Get Pro tab from settings
+* Improvement: Other minor changes
+
+= 0.54.0 =
+- New: Brand update
+- Fix: Keep old Freemius files to avoid fatal errors on update
+- Improvement: Update Freemius SDK
+- Improvement: Load Freemius SDK via Composer
+- Improvement: Other minor changes
+
+= 0.53.0 =
+- New: Added Electro theme support engine
+- Improvement: Update translation files
+- Improvement: Other minor changes
+
+= 0.52.0 =
+- New: Add external video url support for External products
+- New: Add external video url support for External products toggle at settings
+- Improvement: Update translation files
+- Improvement: Other minor changes
 
 = 0.51.0 =
 - Fix: Autoplay on Hover not working for Youtube Embeds on Multisite Subdirectory

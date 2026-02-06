@@ -7,8 +7,9 @@
 
 namespace RSFV;
 
-use RSFV\Compatibility\Plugin_Provider;
 use RSFV\Settings\Register;
+use RSFV\Tools\Register as Tools;
+use RSFV\Compatibility\Plugin_Provider;
 use RSFV\Compatibility\Theme_Provider;
 use RSFV\Featuresets\Register_Featuresets as Featuresets;
 
@@ -38,6 +39,13 @@ final class Plugin {
 	public $registration_provider;
 
 	/**
+	 * Bulk Actions instance.
+	 *
+	 * @var $tools_provider
+	 */
+	public $tools_provider;
+
+	/**
 	 * Metabox instance.
 	 *
 	 * @var $metabox_provider
@@ -61,7 +69,7 @@ final class Plugin {
 	/**
 	 * Frontend instance.
 	 *
-	 * @var $frontend_provider
+	 * @var FrontEnd $frontend_provider
 	 */
 	public $frontend_provider;
 
@@ -75,7 +83,7 @@ final class Plugin {
 	/**
 	 * Theme Compat Provide
 	 *
-	 * @var $theme_provider
+	 * @var Theme_Provider $theme_provider
 	 */
 	public $theme_provider;
 
@@ -133,6 +141,7 @@ final class Plugin {
 		// Load classes.
 		// Let's call these providers.
 		$this->registration_provider = Register::get_instance();
+		$this->tools_provider        = Tools::get_instance();
 		$this->metabox_provider      = Metabox::get_instance();
 		$this->featuresets_provider  = Featuresets::get_instance();
 		$this->shortcode_provider    = Shortcode::get_instance();
@@ -173,6 +182,7 @@ final class Plugin {
 		// Core.
 		require_once RSFV_PLUGIN_DIR . 'includes/class-options.php';
 		require_once RSFV_PLUGIN_DIR . 'includes/Settings/class-register.php';
+		require_once RSFV_PLUGIN_DIR . 'includes/Tools/class-register.php';
 		require_once RSFV_PLUGIN_DIR . 'includes/class-metabox.php';
 
 		// Core overrides.
@@ -205,9 +215,12 @@ final class Plugin {
 	public function filter_plugin_action_links( array $actions ) {
 		$settings_url = admin_url( 'admin.php?page=rsfv-settings' );
 
+		$manage_videos_url = admin_url( 'admin.php?page=rsfv-tools#manage' );
+
 		return array_merge(
 			array(
-				'settings' => "<a href='{$settings_url}'>" . esc_html__( 'Settings', 'rsfv' ) . '</a>',
+				'manage_videos' => "<a href='{$manage_videos_url}'>" . esc_html__( 'Manage Featured Videos', 'rsfv' ) . '</a>',
+				'settings'      => "<a href='{$settings_url}'>" . esc_html__( 'Settings', 'rsfv' ) . '</a>',
 			),
 			$actions
 		);

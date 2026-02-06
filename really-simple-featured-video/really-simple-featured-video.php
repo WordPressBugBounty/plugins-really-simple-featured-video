@@ -3,7 +3,7 @@
  * Plugin Name: Really Simple Featured Video
  * Plugin URI:  https://jetixwp.com/plugins/really-simple-featured-video
  * Description: Adds support for Featured Video to WordPress posts, pages & WooCommerce products.
- * Version:     0.51.0
+ * Version:     0.72.0
  * Author:      JetixWP Plugins
  * Author URI:  https://jetixwp.com
  * License:     GPL2
@@ -18,12 +18,20 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'RSFV_VERSION', '0.51.0' );
+define( 'RSFV_VERSION', '0.72.0' );
 define( 'RSFV_PLUGIN_FILE', __FILE__ );
 define( 'RSFV_PLUGIN_URL', plugin_dir_url( RSFV_PLUGIN_FILE ) );
 define( 'RSFV_PLUGIN_DIR', plugin_dir_path( RSFV_PLUGIN_FILE ) );
 define( 'RSFV_PLUGIN_BASE', plugin_basename( RSFV_PLUGIN_FILE ) );
 define( 'RSFV_PLUGIN_PRO_URL', 'https://jetixwp.com/plugins/really-simple-featured-video' );
+define( 'RSFV_PLUGIN_DEFAULT_PRIORITY', 10 );
+
+// Third party dependencies.
+$vendor_file = __DIR__ . '/vendor/autoload.php';
+
+if ( is_readable( $vendor_file ) ) {
+	require_once $vendor_file;
+}
 
 if ( ! function_exists( 'rsfv_fs' ) ) {
 	/**
@@ -32,10 +40,11 @@ if ( ! function_exists( 'rsfv_fs' ) ) {
 	function rsfv_fs() {
 		global $rsfv_fs;
 
-		if ( ! isset( $rsfv_fs ) ) {
-			// Include Freemius SDK.
-			require_once __DIR__ . '/freemius/start.php';
+		if ( ! function_exists( 'fs_dynamic_init' ) && file_exists( __DIR__ . '/vendor/freemius/wordpress-sdk/start.php' ) ) {
+			require_once __DIR__ . '/vendor/freemius/wordpress-sdk/start.php';
+		}
 
+		if ( ! isset( $rsfv_fs ) && function_exists( 'fs_dynamic_init' ) ) {
 			$rsfv_fs = fs_dynamic_init(
 				array(
 					'id'             => '7560',
@@ -48,9 +57,9 @@ if ( ! function_exists( 'rsfv_fs' ) ) {
 					'menu'           => array(
 						'slug'       => 'rsfv-settings',
 						'first-path' => 'admin.php?page=rsfv-settings',
-						'support' => false,
-						'contact' => false,
-						'account' => false,
+						'support'    => false,
+						'contact'    => false,
+						'account'    => false,
 						'parent'     => array(
 							'slug' => 'jetixwp',
 						),
@@ -74,7 +83,6 @@ if ( ! function_exists( 'rsfv_fs' ) ) {
 add_action(
 	'plugins_loaded',
 	static function () {
-
 		require_once RSFV_PLUGIN_DIR . 'includes/class-plugin.php';
 
 		// Main instance.
