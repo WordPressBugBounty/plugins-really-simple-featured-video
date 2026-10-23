@@ -1,14 +1,14 @@
-=== Really Simple Featured Video for Posts, Pages & WooCommerce Products - Auto Generate Videos ===
+=== Really Simple Featured Video for Posts, Pages & WooCommerce Products ===
 Contributors: jetixwp, lushkant
 Requires at least: 6.3
 Requires PHP: 8.0
 Tested up to: 7.1
 Stable tag: 1.1.0
-Tags: video, featured video, woocommerce, product video, video generator
+Tags: video, featured video, woocommerce, product video, video embed
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add featured videos to posts, pages & WooCommerce products, show them with a block or shortcode, or auto generate them with Video Studio.
+Really Simple Featured Video lets you add product video & featured video to WooCommerce Products & Posts, Pages, CPTs (with featured images) and also auto generate videos.
 
 == Description ==
 
