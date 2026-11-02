@@ -3,7 +3,7 @@ Contributors: jetixwp, lushkant
 Requires at least: 6.3
 Requires PHP: 8.0
 Tested up to: 7.1
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Tags: video, featured video, woocommerce, product video, video embed
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -11,6 +11,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Really Simple Featured Video lets you add product video & featured video to WooCommerce Products & Posts, Pages, CPTs (with featured images) and also auto generate videos.
 
 == Description ==
+
+✨ Have you seen our brand new launch? [Delta, the agent-first WordPress theme with built-in MCP](https://deltatheme.com/?utm_medium=wp.org&utm_source=wordpressorg&utm_campaign=readme)
 
 Really Simple Featured Video plugin provides a really straightforward way of adding featured video support to your Posts, Pages & WooCommerce Products. Adding your own videos to the site is a breeze and you get an easy to use settings panel with the options you really need.
 
@@ -129,6 +131,20 @@ More features to come in the future, to name a few -
 
 If you wish to grab the PRO version with a lifetime deal please do [checkout PRO at our website](https://jetixwp.com/plugins/really-simple-featured-video/?utm_source=wporg&utm_medium=referral&utm_campaign=readme)
 
+== 👉️ Meet Delta, from the JetixWP team ==
+
+[Delta](https://deltatheme.com/?utm_medium=wp.org&utm_source=wordpressorg&utm_campaign=readme&utm_content=description) is our latest product: an agent-first WordPress theme with built-in MCP. Describe the site you want and your AI agent builds and maintains it in clean HTML and CSS, with no page builder involved.
+
+* Works with Claude, ChatGPT, Cursor and any MCP client
+* Clean HTML and CSS output, no builder markup
+* Templates for every part of your site
+* Keep writing posts in the block editor
+* Bring your own AI, no AI fee from Delta
+
+Delta is in early development and available with a Founder’s Lifetime License: one payment, lifetime updates and support, and a 30-day refund guarantee. Every Founder’s License helps us build Delta, the next big thing for AI in WordPress.
+
+Delta replaces your current theme, so it is best for a new site or a planned rebuild. It is a separate product and is not required to use Really Simple Featured Video.
+
 == Screenshots ==
 
 1. Single post/page featured video on Twenty Twenty-Three theme.
@@ -191,6 +207,25 @@ Video Studio uses these libraries and fonts:
 * Manrope, Ysabeau Office, Roboto Slab and Vollkorn fonts (SIL Open Font License 1.1), see assets/studio/fonts/LICENSE.txt
 
 == Changelog ==
+
+= 1.2.0 =
+* Improvement: Removed the review card from the sidebar
+* Security: Updated the Freemius SDK to 2.13.5
+* Security: Users without the unfiltered_html capability can no longer save iframes in post content. Sites where those users already have iframes in posts keep them on save, without the style and allow attributes. Use the rsfv_allow_iframes_on_content_save filter to change this
+* Security: Featured videos of password protected posts stay hidden until the password is entered. Use the rsfv_show_video_on_protected_post filter to show them
+* Security: Users can only attach videos and posters from the Media Library that they are allowed to use
+* Security: Video Studio and Bulk Import respect multisite upload limits
+* Security: Bulk Import no longer saves remote files past the upload limit
+* Security: Escaped output in the Flatsome and CIX gallery templates. CIX gallery lightbox captions no longer keep inline HTML
+* Security: Featured Video block preview no longer shows titles of private post types to users who cannot edit them
+* Security: Stronger analytics rate limit. Sites behind a proxy or CDN can pass the visitor address with the rsfv_analytics_client_ip filter
+* Fix: On pages with several products, a product could show the video of an external product listed before it
+* Fix: The Skip logged-in editors analytics setting now works. Your own visits no longer add to the counts
+* Fix: Deleting the plugin on multisite now removes analytics data from every site
+* Fix: Deleting a site on multisite now also removes its analytics tables
+* Fix: Possible fatal errors from invalid analytics report dates, and from malformed Elementor and sticky video settings
+* Fix: Possible fatal errors in the Astra Pro and Flatsome gallery templates when there is no product, or when the Astra Pro gallery loads more than once on a page
+* Fix: Settings pages no longer run off the side of the screen on phones, tablets and small laptops. The sidebar now sits below the settings on these screens
 
 = 1.1.0 =
 * New: Featured Video block for the block editor and Site Editor. Shows the featured video of the entry it is in, including inside Query Loops and templates, or of any other post you pick
